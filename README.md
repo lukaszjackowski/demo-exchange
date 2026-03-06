@@ -8,7 +8,7 @@ A simplified exchange engine built with **Spring Boot**, and the **LMAX Disrupto
 The goal of this project was to design and implement a simplified exchange engine simulation. The focus was on architectural patterns used in low-latency financial systems to handle high-throughput order processing while maintaining strict data integrity and consistency.
 
 ## 2. Requirements
-The engine is built upon two non-negotiable principles:
+The engine is built upon two principles:
 * **FIFO (First-In-First-Out):** Orders are processed strictly in the order they are received. By using a single-threaded consumer model for the matching logic, we eliminate race conditions and ensure fair execution.
 * **Determinism:** The system is deterministic. Given the same initial state and the same input sequence of events, the system will always produce the exact same output state. This allows for reliable recovery.
 
