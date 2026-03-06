@@ -4,6 +4,7 @@ import com.example.demo.exchange.adapters.postgres.PostgresJournal;
 import com.example.demo.exchange.adapters.postgres.PostgresOrderRepository;
 import com.example.demo.exchange.domain.eventprocessing.EngineEvent;
 import com.example.demo.exchange.domain.eventprocessing.EngineEventProcessor;
+import com.example.demo.exchange.domain.handlers.CleaningHandler;
 import com.example.demo.exchange.domain.handlers.JournalingHandler;
 import com.example.demo.exchange.domain.handlers.LoggingAndThrowingExceptionHandler;
 import com.example.demo.exchange.domain.handlers.OrderIdempotencyHandler;
@@ -62,7 +63,8 @@ public class ExchangeConfiguration {
                 .then(new OrderIdempotencyHandler())
                 .then(new JournalingHandler(journal))
                 .then(new OrderMatchingHandler(new MatchingEngine()))
-                .then(new OrderPersistingHandler(orderRepository));
+                .then(new OrderPersistingHandler(orderRepository))
+                .then(new CleaningHandler());
 
         disruptor.setDefaultExceptionHandler(new LoggingAndThrowingExceptionHandler());
 

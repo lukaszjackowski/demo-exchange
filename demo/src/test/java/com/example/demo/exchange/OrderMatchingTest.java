@@ -16,6 +16,7 @@ import static com.example.demo.exchange.domain.model.Asset.BTC_USD;
 import static com.example.demo.exchange.domain.model.Side.BUY;
 import static com.example.demo.exchange.domain.model.Side.SELL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OrderMatchingTest {
 
@@ -23,6 +24,33 @@ public class OrderMatchingTest {
     private final InMemoryOrderRepository orderRepository = new InMemoryOrderRepository();
     private final EngineEventProcessor engineEventProcessor = new ExchangeConfiguration().engineEventProcesesor(journal, orderRepository);
     private final ExchangeFacade exchangeFacade = new ExchangeConfiguration().exchangeFacade(orderRepository, engineEventProcessor);
+
+    @Test
+    void cannot_create_order_with_negative_price() {
+        // given
+        var createOrder = new CreateOrderDto("Bob", SELL, BTC_USD, BigDecimal.valueOf(-0.1), 500L,"IK-1");
+
+        // when & then
+        assertThatThrownBy(() -> {
+            exchangeFacade.createOrder(createOrder);
+        })
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Price cannot be negative: -0.1");
+    }
+
+    @Test
+    void cannot_create_order_with_negative_quantity() {
+        // given
+        var createOrder = new CreateOrderDto("Bob", SELL, BTC_USD, BigDecimal.valueOf(0.1), -500L,"IK-1");
+
+        // when & then
+        assertThatThrownBy(() -> {
+            exchangeFacade.createOrder(createOrder);
+        })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Quantity cannot be negative: -500");
+    }
+
 
     @Test
     void creates_one_order_without_a_match() throws InterruptedException {

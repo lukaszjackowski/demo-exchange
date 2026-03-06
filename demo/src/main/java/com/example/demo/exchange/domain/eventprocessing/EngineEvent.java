@@ -90,6 +90,18 @@ public class EngineEvent {
         return matchingResult;
     }
 
+    public void clean() {
+        this.userId = null;
+        this.type = null;
+        this.price = null;
+        this.quantity = null;
+        this.side = null;
+        this.asset = null;
+        this.clientOrderId = null;
+        this.matchingResult = null;
+        this.sequence = null;
+    }
+
     @Override
     public String toString() {
         return "EngineEvent{" +
