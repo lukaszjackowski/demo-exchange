@@ -2,7 +2,7 @@
 
 # Exchange Engine Simulation
 
-A simplified exchange matching engine built with **Spring Boot**, and the **LMAX Disruptor** framework.
+A simplified exchange engine built with **Spring Boot**, and the **LMAX Disruptor** framework.
 
 ## 1. Project Objective
 The goal of this project was to design and implement a simplified exchange engine simulation. The focus was on architectural patterns used in low-latency financial systems to handle high-throughput order processing while maintaining strict data integrity and consistency.
@@ -14,8 +14,8 @@ The engine is built upon two non-negotiable principles:
 
 ## 3. Technical Stack & Approach
 * **LMAX Disruptor:** Chosen as the core execution engine. It provides a lock-free **Ring Buffer** that acts as the "Single Source of Truth" for event sequencing.
-* **PostgreSQL Journaling:** Every order is persisted to a SQL journal. While a relational DB provides ACID guarantees, in a production HFT environment, this would typically be replaced by an append-only binary log.
-* **Spring Boot:** Acts as the foundational framework and "orchestrator." It manages the application lifecycle, Dependency Injection (DI), provides the REST API layer, and simplifies integration with the database and the Disruptor engine.
+* **PostgreSQL Journaling:** Every order is persisted to a SQL journal. While a relational DB provides ACID guarantees, in a production environment, this would typically be replaced by an append-only binary log.
+* **Spring Boot:** Acts as the foundational framework and "orchestrator." It manages the application lifecycle, Dependency Injection, provides the REST API layer, simplifies integration with the database and the Disruptor engine.
 
 ## 4. Current Implementation Status
 - [x] **Matching Engine:** Core logic to match BUY and SELL orders within the Disruptor event loop.
@@ -27,6 +27,6 @@ The engine is built upon two non-negotiable principles:
 
 ## 5. Next Steps
 - [ ] **Snapshotting:** Implement periodic state persistence to reduce recovery time (replaying from the last snapshot instead of the beginning of time).
-- [ ] **Advanced Error Handling:** Integration of **Resilience4j Circuit Breakers** and Retries to protect the engine from cascading failures.
+- [ ] **Advanced Error Handling:** Integration of Resilience4j Circuit Breakers and Retries to protect the engine from cascading failures.
 - [ ] **Observability:** Adding Micrometer/Prometheus metrics for throughput, latency, and Ring Buffer saturation.
-- [ ] **Performance Benchmarking:** Identifying bottlenecks using **Gatling**.
+- [ ] **Performance Benchmarking:** Identifying bottlenecks using Gatling.
