@@ -27,7 +27,7 @@ public class EngineEventProcessor {
 
     public void process(CreateOrderCommand command) {
         disruptor.getRingBuffer().publishEvent((event, _) -> {
-            event.createNewOrder(command.userId(), command.price(), command.quantity(), command.side(), command.asset(), command.clientOrderId());
+            event.create(command.userId(), command.price(), command.quantity(), command.side(), command.asset(), command.clientOrderId());
         });
     }
 

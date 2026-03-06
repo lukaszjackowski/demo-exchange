@@ -25,35 +25,6 @@ public class EngineEvent {
     private MatchingResult matchingResult;
     private Sequence sequence;
 
-
-    public void createNewOrder(UserId userId, Price price, Quantity qty, Side side, Asset asset, ClientOrderId clientOrderId) {
-        create(ORDER_NEW, userId, price, qty, side, asset, clientOrderId, null);
-    }
-
-    public void create(EventType eventType, UserId userId, Price price, Quantity qty, Side side, Asset asset, ClientOrderId clientOrderId, Sequence sequence) {
-        this.type = eventType;
-        this.userId = userId;
-        this.price = price;
-        this.quantity = qty;
-        this.side = side;
-        this.asset = asset;
-        this.clientOrderId = clientOrderId;
-        this.type = ORDER_NEW;
-        this.sequence = sequence;
-    }
-
-    public void assignMatchingResult(MatchingResult matchingResult) {
-        this.matchingResult = matchingResult;
-    }
-
-    public void ignore() {
-        this.type = IGNORING;
-    }
-
-    public void replay() {
-        this.type = REPLAYING;
-    }
-
     public UserId getUserId() {
         return userId;
     }
@@ -88,6 +59,34 @@ public class EngineEvent {
 
     public MatchingResult getMatchingResult() {
         return matchingResult;
+    }
+
+    public void create(UserId userId, Price price, Quantity qty, Side side, Asset asset, ClientOrderId clientOrderId) {
+        create(ORDER_NEW, userId, price, qty, side, asset, clientOrderId, null);
+    }
+
+    public void create(EventType eventType, UserId userId, Price price, Quantity qty, Side side, Asset asset, ClientOrderId clientOrderId, Sequence sequence) {
+        this.type = eventType;
+        this.userId = userId;
+        this.price = price;
+        this.quantity = qty;
+        this.side = side;
+        this.asset = asset;
+        this.clientOrderId = clientOrderId;
+        this.type = ORDER_NEW;
+        this.sequence = sequence;
+    }
+
+    public void assignMatchingResult(MatchingResult matchingResult) {
+        this.matchingResult = matchingResult;
+    }
+
+    public void ignore() {
+        this.type = IGNORING;
+    }
+
+    public void replay() {
+        this.type = REPLAYING;
     }
 
     public void clean() {
