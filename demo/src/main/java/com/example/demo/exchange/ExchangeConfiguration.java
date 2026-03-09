@@ -45,7 +45,7 @@ public class ExchangeConfiguration {
     }
 
     @Bean
-    public EngineEventProcessor engineEventProcesesor(Journal journal, OrderRepository orderRepository) {
+    public EngineEventProcessor engineEventProcessor(Journal journal, OrderRepository orderRepository) {
 
         ThreadFactory threadFactory = r -> new Thread(r, "MatchingEngineThread");
 

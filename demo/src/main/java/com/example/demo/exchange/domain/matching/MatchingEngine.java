@@ -28,9 +28,11 @@ public class MatchingEngine {
         var updatedOrders = new LinkedList<Order>();
         var remainingQuantity = order.getRemainingQuantity().value();
 
+        Price lastPrice = null;
         while (remainingQuantity > 0 && !oppositeOrders.isEmpty()) {
-            var bestPrice = oppositeOrders.firstKey();
+            var bestPrice = lastPrice == null ? oppositeOrders.firstKey() : oppositeOrders.higherKey(lastPrice);
 
+            if (bestPrice == null) break;
             if (!isPriceMatching(order.getPrice(), bestPrice, order.getSide())) break;
 
             var ordersAtBestPrice = oppositeOrders.get(bestPrice);
@@ -38,7 +40,8 @@ public class MatchingEngine {
             var iterator = ordersAtBestPrice.values().iterator();
             while (iterator.hasNext() && remainingQuantity > 0) {
                 var oppositeOrder = iterator.next();
-                var tradeQuantity = Math.min(order.getQuantity().value(), oppositeOrder.getQuantity().value());
+                if (oppositeOrder.getUserId().equals(order.getUserId())) continue;
+                var tradeQuantity = Math.min(remainingQuantity, oppositeOrder.getRemainingQuantity().value());
                 remainingQuantity -= tradeQuantity;
                 oppositeOrder.reduceRemainingQuantity(new Quantity(tradeQuantity));
                 updatedOrders.add(oppositeOrder);
@@ -50,6 +53,7 @@ public class MatchingEngine {
             if (ordersAtBestPrice.isEmpty()) {
                 oppositeOrders.remove(bestPrice);
             }
+            lastPrice = bestPrice;
 
         }
 

@@ -5,6 +5,7 @@ import com.example.demo.exchange.domain.InMemoryOrderRepository;
 import com.example.demo.exchange.domain.eventprocessing.EngineEventProcessor;
 import com.example.demo.exchange.domain.model.OrderStatus;
 import com.example.demo.exchange.dto.CreateOrderDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -20,10 +21,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OrderMatchingTest {
 
-    private final InMemoryJournal journal = new InMemoryJournal();
-    private final InMemoryOrderRepository orderRepository = new InMemoryOrderRepository();
-    private final EngineEventProcessor engineEventProcessor = new ExchangeConfiguration().engineEventProcesesor(journal, orderRepository);
-    private final ExchangeFacade exchangeFacade = new ExchangeConfiguration().exchangeFacade(orderRepository, engineEventProcessor);
+    private InMemoryJournal journal;
+    private InMemoryOrderRepository orderRepository;
+    private EngineEventProcessor engineEventProcessor;
+    private ExchangeFacade exchangeFacade;
+
+    @BeforeEach
+    void setUp() {
+        this.journal = new InMemoryJournal();
+        this.orderRepository = new InMemoryOrderRepository();
+        this.engineEventProcessor = new ExchangeConfiguration().engineEventProcessor(journal, orderRepository);
+        this.exchangeFacade = new ExchangeConfiguration().exchangeFacade(orderRepository, engineEventProcessor);
+    }
 
     @Test
     void cannot_create_order_with_negative_price() {
@@ -35,7 +44,7 @@ public class OrderMatchingTest {
             exchangeFacade.createOrder(createOrder);
         })
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Price cannot be negative: -0.1");
+        .hasMessageContaining("Price must be positive: -0.1");
     }
 
     @Test
@@ -195,6 +204,28 @@ public class OrderMatchingTest {
         assertThat(completed).isTrue();
         var result = exchangeFacade.getOrders(userBob).orders();
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void cannot_trade_with_itself() throws InterruptedException {
+        // given
+        var latch = new CountDownLatch(2);
+        orderRepository.setLatch(latch);
+        var userBob = "Bob";
+        var firstOrder = new CreateOrderDto(userBob, SELL, BTC_USD, BigDecimal.valueOf(0.1), 500L,"IK-1");
+        var secondOrder = new CreateOrderDto(userBob, BUY, BTC_USD, BigDecimal.valueOf(0.1), 500L,"IK-2");
+        exchangeFacade.createOrder(firstOrder);
+
+        // when
+        exchangeFacade.createOrder(secondOrder);
+
+        // then
+        var completed = latch.await(5, TimeUnit.SECONDS);
+        assertThat(completed).isTrue();
+        var result = exchangeFacade.getOrders(userBob).orders();
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0)).hasStatus(OrderStatus.NEW);
+        assertThat(result.get(1)).hasStatus(OrderStatus.NEW);
     }
 
 }
